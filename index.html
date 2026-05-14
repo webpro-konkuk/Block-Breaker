@@ -1,32 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Brick Breaker</title>
+    <title>블록깨기 과제</title>
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
-    <div class="wrap">
-      <section class="panel">
-        <h1>벽돌깨기</h1>
-        <canvas id="gameCanvas" width="900" height="640"></canvas>
+    <div class="container">
+      <h1>블록깨기</h1>
 
-        <div class="status" id="status">시작 버튼을 눌러 시작</div>
+      <canvas id="gameCanvas" width="720" height="520"></canvas>
 
-        <div class="controls">
-          <button id="startBtn">시작</button>
-          <button id="pauseBtn">일시정지</button>
-          <button id="restartBtn">재시작</button>
-        </div>
+      <div id="status" class="status">준비: 시작 버튼을 눌러 주세요</div>
 
-        <div class="hud">
-          <p>점수: <span id="score">0</span></p>
-          <p>생명: <span id="lives">3</span></p>
-          <p>레벨: <span id="level">1</span></p>
-          <p class="hint">조작: 좌/우 화살표, A/D</p>
-        </div>
-      </section>
+      <div class="btn-group">
+        <button id="startBtn">시작</button>
+        <button id="pauseBtn">일시정지</button>
+        <button id="restartBtn">재시작</button>
+      </div>
+
+      <div id="hud">
+        <span>점수: <strong id="score">0</strong></span>
+        <span>생명: <strong id="lives">3</strong></span>
+        <span>레벨: <strong id="level">1</strong></span>
+      </div>
+
+      <p class="hint">조작: ← → 또는 A D</p>
     </div>
 
     <script src="./js/ball.js"></script>

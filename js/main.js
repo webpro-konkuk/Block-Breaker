@@ -1,161 +1,169 @@
-(function () {
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
-  const ui = window.createUI();
-
-  const input = window.createInputState();
-  const paddle = window.createPaddle(canvas.width, canvas.height);
-  const ball = window.createBall(canvas.width, canvas.height);
-
-  const state = {
+document.addEventListener('DOMContentLoaded', () => {
+  const gameState = {
     phase: 'ready',
     score: 0,
     lives: 3,
     level: 1,
+    animationId: null,
   };
 
-  let bricks = window.createBrickGrid(state.level, canvas.width);
+  let canvas;
+  let ctx;
+  let ui;
+  let input;
+  let paddle;
+  let ball;
+  let bricks = [];
 
-  const render = () => {
+  function initObjects() {
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    ui = createUI();
+    input = createInputState();
+    paddle = createPaddle(canvas.width, canvas.height);
+    ball = createBall(canvas.width, canvas.height);
+    bricks = createBrickGrid(gameState.level, canvas.width);
+  }
+
+  function buildStage() {
+    bricks = createBrickGrid(gameState.level, canvas.width);
+    paddle.reset();
+    ball.reset(paddle);
+  }
+
+  function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#0d1224';
+    ctx.fillStyle = '#0b1220';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    window.drawBricks(ctx, bricks);
+    drawBricks(ctx, bricks);
     paddle.draw(ctx);
     ball.draw(ctx);
 
-    ui.updateHUD(state);
+    ui.updateHUD(gameState);
 
-    if (state.phase === 'ready') {
-      ui.drawCenterText(ctx, 'START to begin', '#8de4ff');
+    if (gameState.phase === 'ready') {
+      ui.drawMessage(ctx, 'START 버튼을 눌러 시작', '#8be9fd');
     }
-    if (state.phase === 'paused') {
-      ui.drawCenterText(ctx, 'PAUSED', '#ffdd57');
+    if (gameState.phase === 'paused') {
+      ui.drawMessage(ctx, '일시정지', '#facc15');
     }
-    if (state.phase === 'gameOver') {
-      ui.drawCenterText(ctx, 'GAME OVER', '#ff6b6b');
+    if (gameState.phase === 'gameOver') {
+      ui.drawMessage(ctx, 'GAME OVER', '#ef4444');
     }
-    if (state.phase === 'clear') {
-      ui.drawCenterText(ctx, 'CLEAR!', '#8cff8c');
+    if (gameState.phase === 'clear') {
+      ui.drawMessage(ctx, 'CLEAR', '#4ade80');
     }
-  };
+  }
 
-  const buildStage = () => {
-    bricks = window.createBrickGrid(state.level, canvas.width);
-    paddle.reset();
-    ball.reset(paddle);
-  };
-
-  const resetRound = () => {
-    paddle.reset();
-    ball.reset(paddle);
-  };
-
-  const startGame = () => {
-    if (state.phase === 'running') return;
-
-    if (state.phase === 'gameOver') {
-      state.score = 0;
-      state.lives = 3;
-      state.level = 1;
-      buildStage();
-    }
-
-    if (state.phase === 'clear') {
-      state.phase = 'running';
-      buildStage();
-      return;
-    }
-
-    state.phase = 'running';
-    ui.setStatus('공을 맞춰 점수를 얻으세요');
-  };
-
-  const pauseGame = () => {
-    if (state.phase !== 'running') return;
-    state.phase = 'paused';
-    ui.setStatus('일시정지');
-  };
-
-  const resumeGame = () => {
-    if (state.phase !== 'paused') return;
-    state.phase = 'running';
-    ui.setStatus('계속 진행');
-  };
-
-  const restartGame = () => {
-    state.score = 0;
-    state.lives = 3;
-    state.level = 1;
-    state.phase = 'ready';
-    buildStage();
-    ui.setStatus('재시작 완료, 시작 버튼을 누르세요');
-  };
-
-  const nextLevel = () => {
-    state.level += 1;
-    ball.speed += 0.2;
-    ball.vx = (ball.vx < 0 ? -1 : 1) * ball.speed;
-    ball.vy = -ball.speed;
-    ui.setStatus(`레벨 ${state.level} 준비`);
-    buildStage();
-  };
-
-  const update = () => {
-    if (state.phase !== 'running') return;
-
-    paddle.update(input);
-    ball.move();
-
-    if (!window.resolveWallCollision(ball, canvas.width, canvas.height)) {
-      state.lives -= 1;
-      if (state.lives <= 0) {
-        state.phase = 'gameOver';
-        ui.setStatus('게임오버 - 재시작을 눌러주세요');
+  function checkCollision() {
+    if (!resolveWallCollision(ball, canvas.width, canvas.height)) {
+      gameState.lives -= 1;
+      if (gameState.lives <= 0) {
+        gameState.phase = 'gameOver';
+        ui.setStatus('게임 오버 - 재시작 버튼을 눌러주세요');
         return;
       }
 
-      state.phase = 'ready';
-      ui.setStatus('실패! 시작 버튼으로 계속');
-      resetRound();
+      gameState.phase = 'ready';
+      ball.reset(paddle);
+      ui.setStatus('목숨 1개 감소. START로 계속');
       return;
     }
 
-    window.resolvePaddleCollision(ball, paddle);
+    resolvePaddleCollision(ball, paddle);
 
-    const hit = window.resolveBrickCollision(ball, bricks);
-    if (hit) {
-      state.score += hit.points;
-      bricks = bricks.filter((brick) => brick.alive);
+    const gained = resolveBrickCollision(ball, bricks);
+    if (gained > 0) {
+      gameState.score += gained;
+      bricks = bricks.filter((b) => b.alive);
       if (bricks.length === 0) {
-        state.phase = 'clear';
-        setTimeout(() => {
-          if (state.phase === 'clear') {
-            nextLevel();
-            state.phase = 'running';
-          }
-        }, 600);
+        gameState.phase = 'clear';
+        ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
+        setTimeout(nextLevel, 600);
       }
     }
-  };
+  }
 
-  const loop = () => {
+  function nextLevel() {
+    if (gameState.phase !== 'clear') return;
+    gameState.level += 1;
+    ball.speed += 0.2;
+    ball.vx = (ball.vx > 0 ? 1 : -1) * ball.speed;
+    ball.vy = -ball.speed;
+    buildStage();
+    gameState.phase = 'running';
+    ui.setStatus('게임 진행 중');
+  }
+
+  function update() {
+    if (gameState.phase !== 'running') {
+      return;
+    }
+
+    paddle.update(input);
+    ball.move();
+    checkCollision();
+  }
+
+  function loop() {
     update();
-    render();
-    requestAnimationFrame(loop);
-  };
+    draw();
+    gameState.animationId = requestAnimationFrame(loop);
+  }
 
-  ui.startBtn.addEventListener('click', startGame);
-  ui.pauseBtn.addEventListener('click', () => {
-    if (state.phase === 'running') pauseGame();
-    else if (state.phase === 'paused') resumeGame();
-    else startGame();
-  });
-  ui.restartBtn.addEventListener('click', restartGame);
+  function startGame() {
+    if (gameState.phase === 'running') return;
 
-  buildStage();
-  ui.setStatus('시작 버튼을 눌러 시작');
-  state.phase = 'ready';
-  loop();
-})();
+    if (gameState.phase === 'gameOver') {
+      gameState.score = 0;
+      gameState.lives = 3;
+      gameState.level = 1;
+      ball.speed = 4.5;
+      buildStage();
+    }
+
+    gameState.phase = 'running';
+    ui.setStatus('게임 진행 중');
+  }
+
+  function pauseGame() {
+    if (gameState.phase !== 'running') {
+      if (gameState.phase === 'paused') {
+        gameState.phase = 'running';
+        ui.setStatus('게임 진행 중');
+      }
+      return;
+    }
+
+    gameState.phase = 'paused';
+    ui.setStatus('일시정지. 다시 누르면 재개');
+  }
+
+  function restartGame() {
+    gameState.score = 0;
+    gameState.lives = 3;
+    gameState.level = 1;
+    ball.speed = 4.5;
+    buildStage();
+    gameState.phase = 'ready';
+    ui.setStatus('재시작 완료, START로 시작');
+  }
+
+  function setupEvents() {
+    ui.startBtn.addEventListener('click', startGame);
+    ui.pauseBtn.addEventListener('click', pauseGame);
+    ui.restartBtn.addEventListener('click', restartGame);
+  }
+
+  function init() {
+    initObjects();
+    setupEvents();
+    buildStage();
+    ui.setStatus('준비: 시작 버튼을 눌러 주세요');
+    gameState.phase = 'ready';
+    loop();
+  }
+
+  init();
+});

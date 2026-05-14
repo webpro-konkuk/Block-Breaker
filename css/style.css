@@ -1,103 +1,74 @@
-:root {
-  --bg: #0f1020;
-  --panel: #1e1f35;
-  --text: #f5f7ff;
-  --line: #2f335f;
-  --accent: #8de4ff;
-  --accent2: #ff9f1c;
-}
-
-* { box-sizing: border-box; }
-
 body {
   margin: 0;
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle at 20% 20%, #1a1748 0%, #0f1020 45%, #090a12 100%);
-  color: var(--text);
-  font-family: 'Trebuchet MS', 'Pretendard', sans-serif;
+  background: #0f172a;
+  color: #eef2ff;
+  font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 24px;
 }
 
-.wrap {
-  width: min(980px, 95vw);
-}
-
-.panel {
-  background: linear-gradient(180deg, #2b2f59, #1e2142);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+.container {
+  width: 760px;
   text-align: center;
 }
 
 h1 {
-  margin: 0 0 14px;
-  letter-spacing: 0.08em;
+  margin: 0 0 12px;
 }
 
-canvas {
+#gameCanvas {
   width: 100%;
-  max-width: 900px;
-  aspect-ratio: 900 / 640;
   height: auto;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  background: #080b1f;
-  image-rendering: pixelated;
+  border: 2px solid #64748b;
+  border-radius: 8px;
+  background: #0b1120;
 }
 
-.controls {
+.status {
+  margin-top: 10px;
+  height: 28px;
+  color: #facc15;
+  font-weight: 700;
+}
+
+.btn-group {
+  margin-top: 10px;
   display: flex;
-  justify-content: center;
   gap: 10px;
-  margin-top: 14px;
+  justify-content: center;
 }
 
 button {
-  border: none;
-  border-radius: 10px;
-  padding: 9px 14px;
-  color: #071026;
-  background: linear-gradient(180deg, var(--accent), #4fc3ff);
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 14px;
+  background: #38bdf8;
+  color: #082f49;
   font-weight: 700;
   cursor: pointer;
 }
 
-.hud {
+#hud {
+  margin-top: 12px;
   display: flex;
   justify-content: center;
   gap: 24px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-  color: #dce2ff;
-}
-
-.hud p {
-  margin: 4px 0;
+  font-size: 15px;
 }
 
 .hint {
-  width: 100%;
-  opacity: 0.8;
+  margin-top: 8px;
+  color: #94a3b8;
   font-size: 14px;
 }
 
-.status {
-  margin-top: 12px;
-  min-height: 26px;
-  color: var(--accent2);
-  font-weight: 700;
-}
-
-@media (max-width: 768px) {
-  .hud {
-    gap: 14px;
-    font-size: 14px;
+@media (max-width: 760px) {
+  body {
+    padding: 12px;
   }
 
-  .panel {
-    padding: 14px;
+  #hud {
+    gap: 14px;
   }
 }

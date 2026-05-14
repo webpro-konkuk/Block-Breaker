@@ -1,48 +1,43 @@
-(function () {
-  function getElement(id) {
-    const element = document.getElementById(id);
-    if (!element) throw new Error(`Element not found: ${id}`);
-    return element;
+function getNode(id) {
+  const node = document.getElementById(id);
+  if (!node) {
+    throw new Error(`요소를 찾지 못했습니다: ${id}`);
+  }
+  return node;
+}
+
+function createUI() {
+  const status = getNode('status');
+  const score = getNode('score');
+  const lives = getNode('lives');
+  const level = getNode('level');
+  const startBtn = getNode('startBtn');
+  const pauseBtn = getNode('pauseBtn');
+  const restartBtn = getNode('restartBtn');
+
+  function updateHUD(gameState) {
+    score.textContent = String(gameState.score);
+    lives.textContent = String(gameState.lives);
+    level.textContent = String(gameState.level);
   }
 
-  function createUI() {
-    const status = getElement('status');
-    const score = getElement('score');
-    const lives = getElement('lives');
-    const level = getElement('level');
-    const startBtn = getElement('startBtn');
-    const pauseBtn = getElement('pauseBtn');
-    const restartBtn = getElement('restartBtn');
-
-    const updateHUD = (state) => {
-      score.textContent = String(state.score);
-      lives.textContent = String(state.lives);
-      level.textContent = String(state.level);
-    };
-
-    const setStatus = (text) => {
-      status.textContent = text;
-    };
-
-    const drawCenterText = (ctx, text, color = '#f3f4f9') => {
-      ctx.save();
-      ctx.fillStyle = color;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = 'bold 28px Trebuchet MS, sans-serif';
-      ctx.fillText(text, ctx.canvas.width / 2, ctx.canvas.height / 2);
-      ctx.restore();
-    };
-
-    return {
-      startBtn,
-      pauseBtn,
-      restartBtn,
-      updateHUD,
-      setStatus,
-      drawCenterText,
-    };
+  function setStatus(text) {
+    status.textContent = text;
   }
 
-  window.createUI = createUI;
-})();
+  function drawMessage(ctx, message, color) {
+    ctx.fillStyle = color || '#ffffff';
+    ctx.font = 'bold 28px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(message, ctx.canvas.width / 2, ctx.canvas.height / 2);
+  }
+
+  return {
+    startBtn,
+    pauseBtn,
+    restartBtn,
+    updateHUD,
+    setStatus,
+    drawMessage,
+  };
+}
