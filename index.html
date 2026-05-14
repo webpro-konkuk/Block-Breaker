@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brick Breaker</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="panel">
+        <h1>벽돌깨기</h1>
+        <canvas id="gameCanvas" width="900" height="640"></canvas>
+
+        <div class="status" id="status">시작 버튼을 눌러 시작</div>
+
+        <div class="controls">
+          <button id="startBtn">시작</button>
+          <button id="pauseBtn">일시정지</button>
+          <button id="restartBtn">재시작</button>
+        </div>
+
+        <div class="hud">
+          <p>점수: <span id="score">0</span></p>
+          <p>생명: <span id="lives">3</span></p>
+          <p>레벨: <span id="level">1</span></p>
+          <p class="hint">조작: 좌/우 화살표, A/D</p>
+        </div>
+      </section>
+    </div>
+
+    <script src="./js/ball.js"></script>
+    <script src="./js/paddle.js"></script>
+    <script src="./js/brick.js"></script>
+    <script src="./js/collision.js"></script>
+    <script src="./js/ui.js"></script>
+    <script src="./js/main.js"></script>
+  </body>
+</html>
