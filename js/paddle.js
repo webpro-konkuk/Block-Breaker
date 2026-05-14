@@ -53,6 +53,7 @@ function createInputState() {
     }
   }
 
+  //   event.preventDefault(); 이거 안하면 페이지 스크롤이 일어날 수 있다.
   function keyUp(event) {
     if (event.code === 'ArrowLeft' || event.code === 'KeyA') {
       input.left = false;
