@@ -1,13 +1,16 @@
+/* 전체 레이아웃: 게임 전체를 가운데 정렬 */
 body {
   margin: 0;
   background: #0f172a;
-  color: #eef2ff;
-  font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+  color: #f8fafc;
+  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', Arial, sans-serif;
   display: flex;
   justify-content: center;
-  padding: 24px;
+  align-items: center;
+  min-height: 100vh;
 }
 
+/* 게임판 영역 */
 .container {
   width: 760px;
   text-align: center;
@@ -15,28 +18,32 @@ body {
 
 h1 {
   margin: 0 0 12px;
+  font-size: 32px;
 }
 
+/* 캔버스: 과제에서 보기 좋게 테두리와 배경을 단순하게 */
 #gameCanvas {
   width: 100%;
   height: auto;
-  border: 2px solid #64748b;
-  border-radius: 8px;
+  border: 2px dashed #64748b;
   background: #0b1120;
+  border-radius: 8px;
 }
 
+/* 상태/메시지 영역 */
 .status {
   margin-top: 10px;
   height: 28px;
   color: #facc15;
-  font-weight: 700;
+  font-weight: bold;
 }
 
+/* 버튼 영역 */
 .btn-group {
   margin-top: 10px;
   display: flex;
-  gap: 10px;
   justify-content: center;
+  gap: 10px;
 }
 
 button {
@@ -49,6 +56,11 @@ button {
   cursor: pointer;
 }
 
+button:hover {
+  filter: brightness(1.05);
+}
+
+/* 점수판 */
 #hud {
   margin-top: 12px;
   display: flex;
@@ -57,15 +69,23 @@ button {
   font-size: 15px;
 }
 
+/* 조작 안내 */
 .hint {
   margin-top: 8px;
   color: #94a3b8;
   font-size: 14px;
 }
 
+/* 모바일에서도 화면이 깨지지 않도록 */
 @media (max-width: 760px) {
   body {
-    padding: 12px;
+    align-items: flex-start;
+    padding-top: 12px;
+  }
+
+  .container {
+    width: 100%;
+    padding: 0 10px;
   }
 
   #hud {
