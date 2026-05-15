@@ -1,9 +1,25 @@
 function hitCircleRect(circle, rect) {
-  const px = Math.max(rect.x, Math.min(circle.x, rect.x + rect.width));
-  const py = Math.max(rect.y, Math.min(circle.y, rect.y + rect.height));
-  const dx = px - circle.x;
-  const dy = py - circle.y;
-  return dx * dx + dy * dy <= circle.radius * circle.radius;
+  let closeX = circle.x;
+  let closeY = circle.y;
+
+  if (closeX < rect.x) {
+    closeX = rect.x;
+  }
+  if (closeX > rect.x + rect.width) {
+    closeX = rect.x + rect.width;
+  }
+  if (closeY < rect.y) {
+    closeY = rect.y;
+  }
+  if (closeY > rect.y + rect.height) {
+    closeY = rect.y + rect.height;
+  }
+
+  const diffX = circle.x - closeX;
+  const diffY = circle.y - closeY;
+  const distance = diffX * diffX + diffY * diffY;
+
+  return distance <= circle.radius * circle.radius;
 }
 
 function resolveWallCollision(ball, width, height) {
@@ -22,7 +38,11 @@ function resolveWallCollision(ball, width, height) {
     ball.vy = Math.abs(ball.vy);
   }
 
-  return ball.y - ball.radius <= height;
+  if (ball.y - ball.radius > height) {
+    return false;
+  }
+
+  return true;
 }
 
 function resolvePaddleCollision(ball, paddle) {
@@ -30,13 +50,26 @@ function resolvePaddleCollision(ball, paddle) {
     return false;
   }
 
-  const center = paddle.x + paddle.width / 2;
-  const ratio = (ball.x - center) / (paddle.width / 2);
-  const percent = Math.max(-1, Math.min(1, ratio));
-  const speed = Math.hypot(ball.vx, ball.vy);
-  const angle = percent * (Math.PI / 3);
+  const paddleCenter = paddle.x + paddle.width / 2;
+  let hitPoint = (ball.x - paddleCenter) / (paddle.width / 2);
 
-  ball.x = Math.min(Math.max(ball.x, paddle.x), paddle.x + paddle.width);
+  if (hitPoint < -1) {
+    hitPoint = -1;
+  }
+  if (hitPoint > 1) {
+    hitPoint = 1;
+  }
+
+  const speed = Math.hypot(ball.vx, ball.vy);
+  const angle = hitPoint * (Math.PI / 3);
+
+  if (ball.x < paddle.x) {
+    ball.x = paddle.x;
+  }
+  if (ball.x > paddle.x + paddle.width) {
+    ball.x = paddle.x + paddle.width;
+  }
+
   ball.vx = Math.sin(angle) * speed;
   ball.vy = -Math.abs(Math.cos(angle) * speed);
   ball.y = paddle.y - ball.radius - 1;
@@ -44,18 +77,20 @@ function resolvePaddleCollision(ball, paddle) {
 }
 
 function resolveBrickCollision(ball, bricks) {
-  for (let i = 0; i < bricks.length; i += 1) {
+  for (let i = 0; i < bricks.length; i++) {
     const brick = bricks[i];
     if (!brick.alive || !hitCircleRect(ball, brick)) {
       continue;
     }
 
-    const cx = brick.x + brick.width / 2;
-    const cy = brick.y + brick.height / 2;
-    const dx = ball.x - cx;
-    const dy = ball.y - cy;
-    const overlapX = brick.width / 2 + ball.radius - Math.abs(dx);
-    const overlapY = brick.height / 2 + ball.radius - Math.abs(dy);
+    const brickCenterX = brick.x + brick.width / 2;
+    const brickCenterY = brick.y + brick.height / 2;
+
+    const distanceX = ball.x - brickCenterX;
+    const distanceY = ball.y - brickCenterY;
+
+    const overlapX = brick.width / 2 + ball.radius - Math.abs(distanceX);
+    const overlapY = brick.height / 2 + ball.radius - Math.abs(distanceY);
 
     if (overlapX < overlapY) {
       ball.vx = -ball.vx;
