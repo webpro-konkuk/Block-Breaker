@@ -76,6 +76,51 @@ function resolvePaddleCollision(ball, paddle) {
   return true;
 }
 
+// 벽돌 하나의 체력을 1 줄이고, 체력이 0이면 깨진 것으로 처리합니다.
+function damageBrick(brick) {
+  if (!brick.alive) {
+    return 0;
+  }
+
+  brick.hp -= 1;
+
+  if (brick.hp <= 0) {
+    brick.alive = false;
+    return brick.point;
+  }
+
+  return 0;
+}
+
+// <hr> 벽돌 효과: 같은 줄에 있는 벽돌들의 체력을 1씩 줄입니다.
+function damageSameRow(bricks, row) {
+  let point = 0;
+
+  for (let i = 0; i < bricks.length; i++) {
+    const brick = bricks[i];
+    if (!brick.alive || brick.row !== row) {
+      continue;
+    }
+
+    point += damageBrick(brick);
+  }
+
+  return point;
+}
+
+// <br> 벽돌 효과: 살아있는 모든 벽돌을 한 줄 아래로 내립니다.
+function moveBricksDown(bricks) {
+  for (let i = 0; i < bricks.length; i++) {
+    const brick = bricks[i];
+    if (!brick.alive) {
+      continue;
+    }
+
+    brick.row += 1;
+    brick.y += brick.height + 8;
+  }
+}
+
 function resolveBrickCollision(ball, bricks) {
   for (let i = 0; i < bricks.length; i++) {
     const brick = bricks[i];
@@ -98,8 +143,21 @@ function resolveBrickCollision(ball, bricks) {
       ball.vy = -ball.vy;
     }
 
-    brick.alive = false;
-    return brick.point;
+    let point = 0;
+
+    // 태그 타입에 따라 충돌 효과를 다르게 적용합니다.
+    if (brick.type === 'hr') {
+      point += damageSameRow(bricks, brick.row);
+    } else {
+      point += damageBrick(brick);
+    }
+
+    if (brick.type === 'br') {
+      // <br>은 자기 자신이 깨진 뒤 전체 블록을 아래로 내리는 특수 효과입니다.
+      moveBricksDown(bricks);
+    }
+
+    return point;
   }
 
   return 0;
