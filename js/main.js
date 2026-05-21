@@ -104,6 +104,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // 전체 블록 배열 반환
+  function clearTagBricks(currentBricks, targetTag) {
+    let gainedScore = 0;
+    if (!targetTag) {
+      return {
+        nextBricks: currentBricks,
+        gainedScore,
+      };
+    }
+
+    const nextBricks = currentBricks.map((brick) => {
+      if (!brick.alive) {
+        return brick;
+      }
+
+      if (brick.tag !== targetTag) {
+        return brick;
+      }
+
+      // 기존 brick에 hp, alive만 수정해서 반환
+      gainedScore += brick.point || 0;
+      return {
+        ...brick,
+        hp: 0,
+        alive: false,
+      };
+    });
+
+    return {
+      nextBricks,
+      gainedScore,
+    };
+  }
+
   function checkCollision() {
     if (!resolveWallCollision(ball, canvas.width, canvas.height)) {
       gameState.lives -= 1;
@@ -123,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const gained = resolveBrickCollision(ball, bricks);
 
-    // 숫자로 돌아왔다는 것은 블록이 깨지지 않았거나 블록의 effect가 없다는 것
+    // 효과 없는 블록이 깨졌을 때
     if (typeof gained === 'number') {
       if (gained > 0) {
         gameState.score += gained;
@@ -135,6 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       return;
+    }
+    // object 반환: 특수효과 블록 점수 반영
+    if (gained && typeof gained === 'object') {
+      const hitScore = gained.score || 0;
+      gameState.score += hitScore;
     }
 
     // 여기에 블록 효과들 만들기
@@ -148,8 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
           pickNextBackgroundImage();
           break;
         case 'clearTag':
-          // 브릭 제거: targetTag 기준으로 삭제
-          // bricks = bricks.filter((b) => b.tag !== gained.effect.targetTag);
+          const {nextBricks, gainedScore} = clearTagBricks(bricks, gained.effect.targetTag);
+          bricks = nextBricks;
+          gameState.score += gainedScore;
           break;
         case 'rowDamage':
           // 같은 줄 hp 1 감소
