@@ -74,14 +74,57 @@ document.addEventListener('DOMContentLoaded', () => {
     resolvePaddleCollision(ball, paddle);
 
     const gained = resolveBrickCollision(ball, bricks);
-    if (gained > 0) {
-      gameState.score += gained;
-      bricks = bricks.filter((b) => b.alive);
-      if (bricks.length === 0) {
-        gameState.phase = 'clear';
-        ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
-        setTimeout(nextLevel, 600);
+
+    // 숫자로 돌아왔다는 것은 블록이 깨지지 않았거나 블록의 effect가 없다는 것
+    if (typeof gained === 'number') {
+      if (gained > 0) {
+        gameState.score += gained;
+        bricks = bricks.filter((b) => b.alive);
+        if (bricks.length === 0) {
+          gameState.phase = 'clear';
+          ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
+          setTimeout(nextLevel, 600);
+        }
       }
+      return;
+    }
+
+    // 여기에 블록 효과들 만들기
+    if (gained.effect) {
+      // 효과 분기: 실제 동작은 여기서 한 곳에 몰아서 처리
+      switch (gained.effect.kind) {
+        case 'ballGrow':
+          // ball.grow(gained.effect.amount ?? 2);
+          break;
+        case 'backgroundImage':
+          // gameState.backgroundImage = pickNextBackground();
+          break;
+        case 'clearTag':
+          // 브릭 제거: targetTag 기준으로 삭제
+          // bricks = bricks.filter((b) => b.tag !== gained.effect.targetTag);
+          break;
+        case 'rowDamage':
+          // 같은 줄 hp 1 감소
+          // ...
+          break;
+        case 'dropRow':
+          // 전체 블록 하강/줄 내림
+          // ...
+          break;
+        case 'respawnRandom':
+          // 랜덤 위치에 벽돌 재배치
+          // ...
+          break;
+        default:
+          break;
+      }
+    }
+
+    bricks = bricks.filter((b) => b.alive);
+    if (bricks.length === 0) {
+      gameState.phase = 'clear';
+      ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
+      setTimeout(nextLevel, 600);
     }
   }
 
