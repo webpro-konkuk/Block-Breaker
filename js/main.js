@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     lives: 3,
     level: 1,
     animationId: null,
+    backgroundImageIndex: 0,
+    backgroundImage: null,
   };
 
   let canvas;
@@ -14,8 +16,27 @@ document.addEventListener('DOMContentLoaded', () => {
   let paddle;
   let ball;
   let bricks = [];
+  let backgroundImages = [];
+  let backgroundImageCache = [];
 
   function initObjects() {
+    
+
+    backgroundImages = [
+      './img/sky.jpg',
+      './img/snow.jpg',
+    ];
+
+    // 이미지들 -> Image 객체 배열로 변경 
+    backgroundImageCache = backgroundImages.map((src) => {
+      const img = new Image();
+      img.src = src;
+      return img;
+    });
+
+    gameState.backgroundImage = backgroundImageCache[0] || null;
+
+
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     ui = createUI();
@@ -31,10 +52,37 @@ document.addEventListener('DOMContentLoaded', () => {
     ball.reset(paddle);
   }
 
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  function pickNextBackgroundImage() {
+    const count = backgroundImageCache.length;
+    if (count === 0) {
+      gameState.backgroundImage = null;
+      return;
+    }
+
+    gameState.backgroundImageIndex = (gameState.backgroundImageIndex + 1) % count;
+    gameState.backgroundImage = backgroundImageCache[gameState.backgroundImageIndex] || null;
+  }
+
+  function drawBackground() {
+    const bg = gameState.backgroundImage;
+
+    if(bg && bg.complete && bg.naturalWidth > 0) {
+      ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+      return;
+    }
+
+    // 실패하면 그냥 색 채우기
     ctx.fillStyle = '#0b1220';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function draw() {
+    
+    drawBackground();
+
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx.fillStyle = '#0b1220';
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     drawBricks(ctx, bricks);
     paddle.draw(ctx);
@@ -97,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // ball.grow(gained.effect.amount ?? 2);
           break;
         case 'backgroundImage':
-          // gameState.backgroundImage = pickNextBackground();
+          pickNextBackgroundImage();
           break;
         case 'clearTag':
           // 브릭 제거: targetTag 기준으로 삭제

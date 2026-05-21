@@ -91,5 +91,11 @@ function drawBricks(ctx, bricks) {
     ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
     ctx.strokeStyle = 'rgba(255,255,255,0.35)';
     ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 10px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(brick.tag, brick.x + brick.width / 2, brick.y + brick.height / 2);
   }
 }
