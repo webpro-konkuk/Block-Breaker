@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 효과 분기: 실제 동작은 여기서 한 곳에 몰아서 처리
       switch (gained.effect.kind) {
         case 'ballGrow':
-          // ball.grow(gained.effect.amount ?? 2);
+          ball.grow?.(gained.effect.amount ?? 2);
           break;
         case 'backgroundImage':
           pickNextBackgroundImage();
