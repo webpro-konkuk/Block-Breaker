@@ -56,6 +56,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function damageBrickByEffect(brick, amount) {
+    if (!brick.alive || typeof brick.hp !== 'number') {
+      return 0;
+    }
+
+    brick.hp -= amount;
+
+    if (brick.hp <= 0) {
+      brick.alive = false;
+      return brick.point;
+    }
+
+    return 0;
+  }
+
+  function damageRow(row, amount) {
+    let score = 0;
+
+    for (let i = 0; i < bricks.length; i += 1) {
+      const brick = bricks[i];
+      if (!brick.alive || brick.row !== row) {
+        continue;
+      }
+
+      score += damageBrickByEffect(brick, amount);
+    }
+
+    return score;
+  }
+
+  function dropBricks() {
+    for (let i = 0; i < bricks.length; i += 1) {
+      const brick = bricks[i];
+      if (!brick.alive) {
+        continue;
+      }
+
+      brick.row += 1;
+      brick.y += brick.height + 8;
+    }
+  }
+
+  function clearDeadBricksAndCheckLevel() {
+    bricks = bricks.filter((b) => b.alive);
+    if (bricks.length === 0) {
+      gameState.phase = 'clear';
+      ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
+      setTimeout(nextLevel, 600);
+    }
+  }
+
+  function applyBrickEffect(result) {
+    if (!result.effect) {
+      return;
+    }
+
+    if (result.effect.kind === 'rowDamage') {
+      gameState.score += damageRow(result.hitBrick.row, result.effect.amount || 1);
+    }
+
+    if (result.effect.kind === 'dropRow') {
+      dropBricks();
+    }
+  }
+
   function checkCollision() {
     if (!resolveWallCollision(ball, canvas.width, canvas.height)) {
       gameState.lives -= 1;
@@ -74,15 +139,17 @@ document.addEventListener('DOMContentLoaded', () => {
     resolvePaddleCollision(ball, paddle);
 
     const gained = resolveBrickCollision(ball, bricks);
-    if (gained > 0) {
-      gameState.score += gained;
-      bricks = bricks.filter((b) => b.alive);
-      if (bricks.length === 0) {
-        gameState.phase = 'clear';
-        ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
-        setTimeout(nextLevel, 600);
+    if (typeof gained === 'number') {
+      if (gained > 0) {
+        gameState.score += gained;
+        clearDeadBricksAndCheckLevel();
       }
+      return;
     }
+
+    gameState.score += gained.score;
+    applyBrickEffect(gained);
+    clearDeadBricksAndCheckLevel();
   }
 
   function nextLevel() {

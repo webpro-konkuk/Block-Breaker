@@ -1,91 +1,75 @@
-// 태그별 벽돌 기본 정보입니다.
-// 디자인은 나중에 바꿀 수 있고, 여기서는 체력과 점수 같은 게임 로직 값을 관리합니다.
-const BRICK_TAGS = {
-  div: {
-    text: '<div>',
-    hp: 2,
-    point: 100,
-    color: '#2563eb',
-  },
-  span: {
-    text: '<span>',
-    hp: 1,
-    point: 40,
-    color: '#38bdf8',
-  },
-  hr: {
-    text: '<hr>',
-    hp: 1,
-    point: 70,
-    color: '#f97316',
-  },
-  br: {
-    text: '<br>',
-    hp: 1,
-    point: 60,
-    color: '#22c55e',
-  },
+/**
+ * 벽돌 공통 인터페이스
+ * row, col: 벽돌의 행/열 위치
+ * x, y, width, height: 캔버스 충돌 판정용 위치와 크기
+ * alive: 화면에 남아있는지 여부
+ * tag: 벽돌이 의미하는 HTML 태그 이름
+ * label: 화면에 표시할 태그 문자열
+ * hp, maxHp: 현재 체력과 최대 체력
+ * point: 깨졌을 때 얻는 점수
+ * color: 임시 색상, 최종 디자인은 디자인 담당자가 조정
+ * effect: 태그별 특수 효과 정보
+ */
+const BRICK_PROFILE = {
+  div: { hp: 2, point: 70, color: '#3b82f6', effect: null },
+  span: { hp: 1, point: 20, color: '#a5f3fc', effect: null },
+  hr: { hp: 1, point: 30, color: '#fb923c', effect: { kind: 'rowDamage', amount: 1 } },
+  br: { hp: 1, point: 25, color: '#4ade80', effect: { kind: 'dropRow' } },
+  a: { hp: 1, point: 80, color: '#818cf8', effect: { kind: 'respawnRandom' } },
+  img: { hp: 1, point: 100, color: '#0ea5e9', effect: { kind: 'backgroundImage' } },
+  h1: { hp: 1, point: 220, color: '#f97316', effect: null },
+  ul: { hp: 1, point: 110, color: '#34d399', effect: { kind: 'clearTag', targetTag: 'li' } },
+  strong: { hp: 1, point: 140, color: '#f43f5e', effect: { kind: 'ballGrow', amount: 2 } },
+  li: { hp: 1, point: 15, color: '#facc15', effect: null },
 };
 
-// 레벨마다 어떤 태그 벽돌을 배치할지 정합니다.
-function getBrickType(level, row, col) {
-  const levelTypes = [
-    ['div', 'span', 'span', 'div', 'span', 'span', 'div', 'span'],
-    ['div', 'span', 'hr', 'span', 'div', 'span', 'hr', 'span'],
-    ['div', 'br', 'span', 'hr', 'div', 'span', 'br', 'span'],
-  ];
+const BRICK_LAYOUT = [
+  ['div', 'span', 'div', 'span', 'div', 'span', 'div', 'span'],
+  ['span', 'div', 'hr', 'div', 'span', 'div', 'hr', 'div'],
+  ['div', 'span', 'div', 'br', 'div', 'span', 'div', 'br'],
+  ['span', 'div', 'span', 'div', 'hr', 'div', 'span', 'div'],
+];
 
-  let patternIndex = level - 1;
-  if (patternIndex >= levelTypes.length) {
-    patternIndex = levelTypes.length - 1;
+function getTagByPosition(row, col) {
+  if (BRICK_LAYOUT[row] && BRICK_LAYOUT[row][col]) {
+    return BRICK_LAYOUT[row][col];
   }
 
-  const pattern = levelTypes[patternIndex];
-  return pattern[(row + col) % pattern.length];
+  return row % 2 === 0 ? 'div' : 'span';
 }
 
 function createBrickGrid(level, canvasWidth) {
-  const colCount = 8;
-  let rowCount = 2 + level;
-  if (rowCount > 7) {
-    rowCount = 7;
-  }
-
+  const cols = 8;
+  const rows = Math.min(2 + level, 7);
   const gap = 8;
   const startX = 24;
   const startY = 54;
+  const brickWidth = (canvasWidth - startX * 2 - gap * (cols - 1)) / cols;
   const brickHeight = 20;
-  const brickWidth = (canvasWidth - startX * 2 - gap * (colCount - 1)) / colCount;
+
   const bricks = [];
 
-  for (let row = 0; row < rowCount; row ++) {
-    for (let col = 0; col < colCount; col ++) {
-      // 기존 일반 벽돌 대신 태그 타입을 가진 벽돌을 만듭니다.
-      const type = getBrickType(level, row, col);
-      const tagInfo = BRICK_TAGS[type];
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const tag = getTagByPosition(row, col);
+      const profile = BRICK_PROFILE[tag];
 
-      const x = startX + col * (brickWidth + gap);
-      const y = startY + row * (brickHeight + gap);
-
-      const brick = {
-        x: x,
-        y: y,
-        // row, col은 <hr>처럼 같은 줄 벽돌을 찾을 때 사용합니다.
+      bricks.push({
         row: row,
         col: col,
+        x: startX + col * (brickWidth + gap),
+        y: startY + row * (brickHeight + gap),
         width: brickWidth,
         height: brickHeight,
         alive: true,
-        // type/text/hp/maxHp가 태그형 벽돌 처리를 위해 추가된 값입니다.
-        type: type,
-        text: tagInfo.text,
-        hp: tagInfo.hp,
-        maxHp: tagInfo.hp,
-        point: tagInfo.point,
-        color: tagInfo.color,
-      };
-
-      bricks.push(brick);
+        tag: tag,
+        label: '<' + tag + '>',
+        hp: profile.hp,
+        maxHp: profile.hp,
+        point: profile.point,
+        color: profile.color,
+        effect: profile.effect,
+      });
     }
   }
 
@@ -93,28 +77,23 @@ function createBrickGrid(level, canvasWidth) {
 }
 
 function drawBricks(ctx, bricks) {
-  for (let i = 0; i < bricks.length; i++) {
+  for (let i = 0; i < bricks.length; i += 1) {
     const brick = bricks[i];
-
     if (!brick.alive) {
       continue;
     }
-
     ctx.fillStyle = brick.color;
     ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
-
     ctx.strokeStyle = 'rgba(255,255,255,0.35)';
     ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
 
-    // 벽돌 안에 <div>, <span> 같은 태그 이름을 표시합니다.
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 13px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(brick.text, brick.x + brick.width / 2, brick.y + brick.height / 2);
+    ctx.fillText(brick.label, brick.x + brick.width / 2, brick.y + brick.height / 2);
 
     if (brick.maxHp > 1) {
-      // 체력이 2 이상인 벽돌은 남은 체력을 같이 보여줍니다.
       ctx.font = '10px Arial';
       ctx.fillText(brick.hp + '/' + brick.maxHp, brick.x + brick.width - 16, brick.y + 10);
     }
