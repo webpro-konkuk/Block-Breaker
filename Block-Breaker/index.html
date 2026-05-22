@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>블록깨기 과제</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+
+
+    <!--추가 intro -->
+    <div id="introContainer" class="intro-container">
+      <div class="intro-box">
+        <img id="introImage" src="intro1.png" alt="Intro Story">
+
+        <p id="introText" class="intro-text">여기에 1번째 사진의 대사가 들어갑니다.</p>
+
+        <p class="intro-hint">화면을 클릭하면 다음으로 넘어갑니다</p>
+      </div>
+    </div>
+    <!--추가-->
+
+    <!--수정-->
+    <div class="container" id="mainGameContainer" style="display: none;">
+    <!--수정-->
+    
+      <!--제거 <h1>블록깨기</h1>-->
+
+      <canvas id="gameCanvas" width="720" height="520"></canvas>
+
+      <div id="status" class="status">준비: 시작 버튼을 눌러 주세요</div>
+
+      <!-- 수정 -->
+      <div class="btn-group">
+        <button id="startBtn" class="btn-start">시작</button>
+        <button id="pauseBtn" class="btn-pause">일시정지</button>
+        <button id="restartBtn" class="btn-restart">재시작</button>
+      </div>
+      <div id="hud">
+          <div class="hud-item">SCORE <span id="score">0</span></div>
+          <div class="hud-item">LIVES <span id="lives" class="heart-lives"></span></div>
+          <div class="hud-item">LEVEL <span id="level">1</span></div>
+      </div>
+      <!-- 수정 -->
+
+      <p class="hint">조작: ← → 또는 A D</p>
+    </div>
+
+    <script src="./js/ball.js"></script>
+    <script src="./js/paddle.js"></script>
+    <script src="./js/brick.js"></script>
+    <script src="./js/collision.js"></script>
+    <script src="./js/ui.js"></script>
+    <script src="./js/main.js"></script>
+  </body>
+</html>
