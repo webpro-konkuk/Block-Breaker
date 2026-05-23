@@ -14,8 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lives: 3,
     level: getSavedLevel(),
     animationId: null,
-    backgroundImageIndex: 0,
-    backgroundImage: null,
+    backgroundImageIndex: -1,
   };
 
   let canvas;
@@ -25,16 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
   let paddle;
   let ball;
   let bricks = [];
-  let backgroundImageCache = [];
+  let backgroundImages = [];
 
   function loadBackgroundImages() {
-    const backgroundImages = ['./img/sky.jpg', './img/snow.jpg'];
-    backgroundImageCache = backgroundImages.map((src) => {
-      const img = new Image();
-      img.src = src;
-      return img;
+    backgroundImages = ['./img/sky.jpg', './img/snow.jpg'];
+    backgroundImages.forEach((src) => {
+      const image = new Image();
+      image.src = src;
     });
-    gameState.backgroundImage = backgroundImageCache[0] || null;
   }
 
   function applySettings() {
@@ -63,30 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function pickNextBackgroundImage() {
-    const count = backgroundImageCache.length;
+    const count = backgroundImages.length;
     if (count === 0) {
-      gameState.backgroundImage = null;
       return;
     }
 
     gameState.backgroundImageIndex = (gameState.backgroundImageIndex + 1) % count;
-    gameState.backgroundImage = backgroundImageCache[gameState.backgroundImageIndex] || null;
-  }
-
-  function drawBackground() {
-    const bg = gameState.backgroundImage;
-    if (bg && bg.complete && bg.naturalWidth > 0) {
-      ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-      return;
-    }
-
-    ctx.fillStyle = '#0b1220';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const imagePath = backgroundImages[gameState.backgroundImageIndex];
+    const imageUrl = new URL(imagePath, window.location.href).href;
+    document.body.style.setProperty('--game-background-image', `url("${imageUrl}")`);
   }
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBackground();
+    ctx.fillStyle = '#0b1220';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     drawBricks(ctx, bricks);
     paddle.draw(ctx);
     ball.draw(ctx);
