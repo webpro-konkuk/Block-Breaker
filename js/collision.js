@@ -69,7 +69,6 @@ function resolveBrickCollision(ball, bricks) {
         return 0;
       }
     }
-
     brick.alive = false;
 
     if (!brick.effect) {
