@@ -67,7 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     gameState.backgroundImageIndex = (gameState.backgroundImageIndex + 1) % count;
     const imagePath = backgroundImages[gameState.backgroundImageIndex];
-    document.body.style.setProperty('--game-background-image', `url("${imagePath}")`);
+    const imageUrl = new URL(imagePath, window.location.href).href;
+    document.body.style.setProperty('--game-background-image', `url("${imageUrl}")`);
   }
 
   function draw() {
