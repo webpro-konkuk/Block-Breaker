@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>블록깨기 - 메인메뉴</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>블록깨기</h1>
+
+      <p class="hint">메뉴를 선택하세요</p>
+
+      <div>
+        <p>
+          <button id="startGameBtn" type="button">게임시작</button>
+        </p>
+
+        <p>
+          <button id="difficultyBtn" type="button">난이도설정</button>
+        </p>
+
+        <p>
+          <button id="settingBtn" type="button">환경설정</button>
+        </p>
+      </div>
+
+
+      <div>
+        <p>
+          현재 난이도:
+          <strong id="currentLevelText">Level 1</strong>
+        </p>
+
+        <p>
+          공 색:
+          <span
+            id="ballColorBox"
+            style="
+              display: inline-block;
+              width: 24px;
+              height: 16px;
+              background-color: #f59e0b;
+              border: 1px solid #ffffff;
+              vertical-align: middle;
+            "
+          ></span>
+        </p>
+
+        <p>
+          패들 색:
+          <span
+            id="paddleColorBox"
+            style="
+              display: inline-block;
+              width: 24px;
+              height: 16px;
+              background-color: #22d3ee;
+              border: 1px solid #ffffff;
+              vertical-align: middle;
+            "
+          ></span>
+        </p>
+      </div>
+
+
+
+    </div>
+    <script src="./js/mainmenu.js"></script>
+  </body>
+</html>

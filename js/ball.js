@@ -29,7 +29,6 @@ function createBall(canvasWidth, canvasHeight) {
     ctx.closePath();
   };
 
-  //커지는거 Max 값을 16으로 제한
   ball.grow = (amount = 2) => {
     const maxRadius = 16;
     const nextRadius = ball.radius + amount;
