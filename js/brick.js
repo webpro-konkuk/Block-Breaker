@@ -42,8 +42,6 @@ const BRICK_LAYOUT = [
 function getTagByPosition(row, col) {
   return BRICK_LAYOUT[row] && BRICK_LAYOUT[row][col] ? BRICK_LAYOUT[row][col] : 'div';
 }
-
-
 function createBrickGrid(level, canvasWidth) {
   const cols = 8;
   const rows = Math.min(2 + level, 7);
@@ -61,16 +59,17 @@ function createBrickGrid(level, canvasWidth) {
       const profile = BRICK_PROFILE[tag];
 
       bricks.push({
-        row, 
+        row,
         col,
         x: startX + col * (brickWidth + gap),
         y: startY + row * (brickHeight + gap),
         width: brickWidth,
         height: brickHeight,
         alive: true,
-
         tag,
+        label: '<' + tag + '>',
         hp: profile.hp,
+        maxHp: profile.hp,
         point: profile.point,
         color: profile.color,
         effect: profile.effect,
@@ -93,9 +92,14 @@ function drawBricks(ctx, bricks) {
     ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 10px Arial';
+    ctx.font = 'bold 13px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(brick.tag, brick.x + brick.width / 2, brick.y + brick.height / 2);
+    ctx.fillText(brick.label, brick.x + brick.width / 2, brick.y + brick.height / 2);
+
+    if (brick.maxHp > 1) {
+      ctx.font = '10px Arial';
+      ctx.fillText(brick.hp + '/' + brick.maxHp, brick.x + brick.width - 16, brick.y + 10);
+    }
   }
 }

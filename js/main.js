@@ -104,7 +104,84 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 전체 블록 배열 반환
+  function damageBrickByEffect(brick, amount) {
+    if (!brick.alive || typeof brick.hp !== 'number') {
+      return 0;
+    }
+
+    brick.hp -= amount;
+
+    if (brick.hp <= 0) {
+      brick.alive = false;
+      return brick.point;
+    }
+
+    return 0;
+  }
+
+  function damageRow(row, amount) {
+    let score = 0;
+
+    for (let i = 0; i < bricks.length; i += 1) {
+      const brick = bricks[i];
+      if (!brick.alive || brick.row !== row) {
+        continue;
+      }
+
+      score += damageBrickByEffect(brick, amount);
+    }
+
+    return score;
+  }
+
+  function dropBricks() {
+    for (let i = 0; i < bricks.length; i += 1) {
+      const brick = bricks[i];
+      if (!brick.alive) {
+        continue;
+      }
+
+      brick.row += 1;
+      brick.y += brick.height + 8;
+    }
+  }
+
+  function clearDeadBricksAndCheckLevel() {
+    bricks = bricks.filter((b) => b.alive);
+    if (bricks.length === 0) {
+      gameState.phase = 'clear';
+      ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
+      setTimeout(nextLevel, 600);
+    }
+  }
+
+  function applyBrickEffect(result) {
+    if (!result.effect) {
+      return;
+    }
+
+    if (result.effect.kind === 'rowDamage') {
+      gameState.score += damageRow(result.hitBrick.row, result.effect.amount || 1);
+    }
+
+    if (result.effect.kind === 'dropRow') {
+      dropBricks();
+    }
+    if (result.effect.kind === 'ballGrow') {
+      ball.grow?.(result.effect.amount ?? 2);
+    }
+
+    if (result.effect.kind === 'backgroundImage') {
+      pickNextBackgroundImage();
+    }
+
+    if (result.effect.kind === 'clearTag') {
+      const { nextBricks, gainedScore } = clearTagBricks(bricks, result.effect.targetTag);
+      bricks = nextBricks;
+      gameState.score += gainedScore;
+    }
+  }
+
   function clearTagBricks(currentBricks, targetTag) {
     let gainedScore = 0;
     if (!targetTag) {
@@ -157,63 +234,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const gained = resolveBrickCollision(ball, bricks);
 
-    // 효과 없는 블록이 깨졌을 때
     if (typeof gained === 'number') {
       if (gained > 0) {
         gameState.score += gained;
-        bricks = bricks.filter((b) => b.alive);
-        if (bricks.length === 0) {
-          gameState.phase = 'clear';
-          ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
-          setTimeout(nextLevel, 600);
-        }
+        clearDeadBricksAndCheckLevel();
       }
       return;
     }
-    // object 반환: 특수효과 블록 점수 반영
-    if (gained && typeof gained === 'object') {
-      const hitScore = gained.score || 0;
-      gameState.score += hitScore;
+
+    if (!gained || typeof gained !== 'object') {
+      return;
     }
 
-    // 여기에 블록 효과들 만들기
-    if (gained.effect) {
-      // 효과 분기: 실제 동작은 여기서 한 곳에 몰아서 처리
-      switch (gained.effect.kind) {
-        case 'ballGrow':
-          ball.grow?.(gained.effect.amount ?? 2);
-          break;
-        case 'backgroundImage':
-          pickNextBackgroundImage();
-          break;
-        case 'clearTag':
-          const {nextBricks, gainedScore} = clearTagBricks(bricks, gained.effect.targetTag);
-          bricks = nextBricks;
-          gameState.score += gainedScore;
-          break;
-        case 'rowDamage':
-          // 같은 줄 hp 1 감소
-          // ...
-          break;
-        case 'dropRow':
-          // 전체 블록 하강/줄 내림
-          // ...
-          break;
-        case 'respawnRandom':
-          // 랜덤 위치에 벽돌 재배치
-          // ...
-          break;
-        default:
-          break;
-      }
-    }
-
-    bricks = bricks.filter((b) => b.alive);
-    if (bricks.length === 0) {
-      gameState.phase = 'clear';
-      ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
-      setTimeout(nextLevel, 600);
-    }
+    gameState.score += gained.score || 0;
+    applyBrickEffect(gained);
+    clearDeadBricksAndCheckLevel();
   }
 
   function nextLevel() {
