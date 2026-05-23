@@ -63,15 +63,12 @@ function resolveBrickCollision(ball, bricks) {
       ball.vy = -ball.vy;
     }
 
-    // 여기부터 추가적인 부분
     if (typeof brick.hp === 'number') {
       brick.hp -= 1;
       if (brick.hp > 0) {
         return 0;
       }
     }
-    
-    
     brick.alive = false;
 
     if (!brick.effect) {
