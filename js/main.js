@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-  function getSavedLevel(){//레벨 불러오는 함수
-    var level = localStorage.getItem('selectedLevel')||1;
-    return parseInt(level);
+  function getSavedLevel() {
+    const level = Number.parseInt(localStorage.getItem('selectedLevel') || '1', 10);
+    return Number.isNaN(level) ? 1 : level;
   }
 
-  function getSpeedByLevel(level){//레벨에 따른 속도 조정 함수
+  function getSpeedByLevel(level) {
     return 4.5 + (level - 1) * 0.2;
   }
 
@@ -12,8 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     phase: 'ready',
     score: 0,
     lives: 3,
-    level: getSavedLevel(),//레벨 불러옴
+    level: getSavedLevel(),
     animationId: null,
+    backgroundImageIndex: 0,
+    backgroundImage: null,
   };
 
   let canvas;
@@ -23,44 +25,71 @@ document.addEventListener('DOMContentLoaded', () => {
   let paddle;
   let ball;
   let bricks = [];
+  let backgroundImageCache = [];
 
-
-  function applySettings() {//공, 패들 색 변경 함수
-    var ballColor = localStorage.getItem('ballColor')|| '#f59e0b';
-    var paddleColor = localStorage.getItem('paddleColor') || '#22d3ee';
-
-    ball.color = ballColor;
-    paddle.color = paddleColor;
+  function loadBackgroundImages() {
+    const backgroundImages = ['./img/sky.jpg', './img/snow.jpg'];
+    backgroundImageCache = backgroundImages.map((src) => {
+      const img = new Image();
+      img.src = src;
+      return img;
+    });
+    gameState.backgroundImage = backgroundImageCache[0] || null;
   }
 
+  function applySettings() {
+    ball.color = localStorage.getItem('ballColor') || '#f59e0b';
+    paddle.color = localStorage.getItem('paddleColor') || '#22d3ee';
+    ball.speed = getSpeedByLevel(gameState.level);
+  }
 
   function initObjects() {
+    loadBackgroundImages();
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     ui = createUI();
     input = createInputState();
     paddle = createPaddle(canvas.width, canvas.height);
     ball = createBall(canvas.width, canvas.height);
-    ball.speed = getSpeedByLevel(gameState.level);//레벨에 따른 속도 조정
-    applySettings();//공, 패들 색 적용
+    applySettings();
     bricks = createBrickGrid(gameState.level, canvas.width);
   }
 
   function buildStage() {
     bricks = createBrickGrid(gameState.level, canvas.width);
     paddle.reset();
+    ball.speed = getSpeedByLevel(gameState.level);
     ball.reset(paddle);
+  }
+
+  function pickNextBackgroundImage() {
+    const count = backgroundImageCache.length;
+    if (count === 0) {
+      gameState.backgroundImage = null;
+      return;
+    }
+
+    gameState.backgroundImageIndex = (gameState.backgroundImageIndex + 1) % count;
+    gameState.backgroundImage = backgroundImageCache[gameState.backgroundImageIndex] || null;
+  }
+
+  function drawBackground() {
+    const bg = gameState.backgroundImage;
+    if (bg && bg.complete && bg.naturalWidth > 0) {
+      ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+      return;
+    }
+
+    ctx.fillStyle = '#0b1220';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#0b1220';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    drawBackground();
     drawBricks(ctx, bricks);
     paddle.draw(ctx);
     ball.draw(ctx);
-
     ui.updateHUD(gameState);
 
     if (gameState.phase === 'ready') {
@@ -77,17 +106,122 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function finishGame(resultType) {
+    localStorage.setItem('resultScore', String(gameState.score));
+    localStorage.setItem('resultLevel', String(gameState.level));
+    localStorage.setItem('resultType', resultType);
+    location.href = 'result.html';
+  }
+
+  function damageBrickByEffect(brick, amount) {
+    if (!brick.alive || typeof brick.hp !== 'number') {
+      return 0;
+    }
+
+    brick.hp -= amount;
+    if (brick.hp <= 0) {
+      brick.alive = false;
+      return brick.point;
+    }
+    return 0;
+  }
+
+  function damageRow(row, amount) {
+    let score = 0;
+    for (let i = 0; i < bricks.length; i += 1) {
+      const brick = bricks[i];
+      if (brick.alive && brick.row === row) {
+        score += damageBrickByEffect(brick, amount);
+      }
+    }
+    return score;
+  }
+
+  function dropBricks() {
+    for (let i = 0; i < bricks.length; i += 1) {
+      const brick = bricks[i];
+      if (brick.alive) {
+        brick.row += 1;
+        brick.y += brick.height + 8;
+      }
+    }
+  }
+
+  function respawnBrickRandom(brick) {
+    const aliveBricks = bricks.filter((item) => item.alive && item !== brick);
+    const baseBrick = aliveBricks[Math.floor(Math.random() * aliveBricks.length)] || brick;
+    const offsetX = Math.floor(Math.random() * 5) - 2;
+    const offsetY = Math.floor(Math.random() * 3) - 1;
+
+    brick.x = Math.max(24, Math.min(canvas.width - brick.width - 24, baseBrick.x + offsetX * 24));
+    brick.y = Math.max(54, baseBrick.y + offsetY * 28);
+    brick.hp = brick.maxHp;
+    brick.alive = true;
+  }
+
+  function clearTagBricks(currentBricks, targetTag) {
+    let gainedScore = 0;
+    const nextBricks = currentBricks.map((brick) => {
+      if (!targetTag || !brick.alive || brick.tag !== targetTag) {
+        return brick;
+      }
+
+      gainedScore += brick.point || 0;
+      return { ...brick, hp: 0, alive: false };
+    });
+
+    return { nextBricks, gainedScore };
+  }
+
+  function applyBrickEffect(result) {
+    if (!result.effect) {
+      return;
+    }
+
+    if (result.effect.kind === 'rowDamage') {
+      gameState.score += damageRow(result.hitBrick.row, result.effect.amount || 1);
+    }
+    if (result.effect.kind === 'dropRow') {
+      dropBricks();
+    }
+    if (result.effect.kind === 'ballGrow') {
+      ball.grow?.(result.effect.amount ?? 2);
+    }
+    if (result.effect.kind === 'backgroundImage') {
+      pickNextBackgroundImage();
+    }
+    if (result.effect.kind === 'respawnRandom') {
+      respawnBrickRandom(result.hitBrick);
+    }
+    if (result.effect.kind === 'clearTag') {
+      const { nextBricks, gainedScore } = clearTagBricks(bricks, result.effect.targetTag);
+      bricks = nextBricks;
+      gameState.score += gainedScore;
+    }
+  }
+
+  function clearDeadBricksAndCheckLevel() {
+    bricks = bricks.filter((brick) => brick.alive);
+    if (bricks.length !== 0) {
+      return;
+    }
+
+    gameState.phase = 'clear';
+    if (gameState.level >= 3) {
+      finishGame('clear');
+      return;
+    }
+
+    ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
+    setTimeout(nextLevel, 600);
+  }
+
   function checkCollision() {
     if (!resolveWallCollision(ball, canvas.width, canvas.height)) {
       gameState.lives -= 1;
       if (gameState.lives <= 0) {
         gameState.phase = 'gameOver';
-
-        localStorage.setItem('resultScore', gameState.score);
-        localStorage.setItem('resultLevel', gameState.level);
-        localStorage.setItem('resultType', 'fail');
-        location.href='result.html';//게임 오버시 결과페이지로 이동
-        //ui.setStatus('게임 오버 - 재시작 버튼을 눌러주세요');
+        finishGame('fail');
         return;
       }
 
@@ -98,39 +232,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     resolvePaddleCollision(ball, paddle);
-
     const gained = resolveBrickCollision(ball, bricks);
-    if (gained > 0) {
-      gameState.score += gained;
-      bricks = bricks.filter((b) => b.alive);
-      if (bricks.length === 0) {
-        gameState.phase = 'clear';
-
-        if (gameState.level === 3) {
-
-          localStorage.setItem('resultScore', gameState.score);
-          localStorage.setItem('resultLevel', gameState.level);
-          localStorage.setItem('resultType', 'clear');
-          location.href = 'result.html';//레벨3 클리어시 결과페이지로 이동
-          return;
-        }
-
-        ui.setStatus(`레벨 ${gameState.level + 1} 준비`);
-        setTimeout(nextLevel, 600);
+    if (typeof gained === 'number') {
+      if (gained > 0) {
+        gameState.score += gained;
+        clearDeadBricksAndCheckLevel();
       }
+      return;
     }
+
+    if (!gained || typeof gained !== 'object') {
+      return;
+    }
+
+    gameState.score += gained.score || 0;
+    applyBrickEffect(gained);
+    clearDeadBricksAndCheckLevel();
   }
 
   function nextLevel() {
     if (gameState.phase !== 'clear') return;
     gameState.level += 1;
-
-    ball.speed = getSpeedByLevel(gameState.level);//레벨에 따른 속도 조정
-    /*ball.vx = (ball.vx > 0 ? 1 : -1) * ball.speed;
-    ball.vy = -ball.speed;*/ ///buildStage함수에서 같은 작업 함
     buildStage();
     gameState.phase = 'running';
-    ui.setStatus('게임 진행 중');///////////////////////////////
+    ui.setStatus('게임 진행 중');
   }
 
   function update() {
@@ -149,42 +274,41 @@ document.addEventListener('DOMContentLoaded', () => {
     gameState.animationId = requestAnimationFrame(loop);
   }
 
+  function resetGame() {
+    gameState.score = 0;
+    gameState.lives = 3;
+    gameState.level = getSavedLevel();
+    applySettings();
+    buildStage();
+  }
+
   function startGame() {
     if (gameState.phase === 'running') return;
-
     if (gameState.phase === 'gameOver') {
-      gameState.score = 0;
-      gameState.lives = 3;
-      gameState.level = getSavedLevel();//레벨 불러옴
-      ball.speed = getSpeedByLevel(gameState.level);//레벨에 따른 속도 조정
-      buildStage();
+      resetGame();
     }
 
     gameState.phase = 'running';
-    ui.setStatus('게임 진행 중');//////////////////////
+    ui.setStatus('게임 진행 중');
   }
 
   function pauseGame() {
     if (gameState.phase !== 'running') {
       if (gameState.phase === 'paused') {
         gameState.phase = 'running';
-        ui.setStatus('게임 진행 중');///////////////
+        ui.setStatus('게임 진행 중');
       }
       return;
     }
 
     gameState.phase = 'paused';
-    ui.setStatus('일시정지. 다시 누르면 재개');//////////////////////
+    ui.setStatus('일시정지. 다시 누르면 재개');
   }
 
   function restartGame() {
-    gameState.score = 0;
-    gameState.lives = 3;
-    gameState.level = getSavedLevel();//레벨 불러옴
-    ball.speed = getSpeedByLevel(gateState.level);//레벨에 따른 속도 조정
-    buildStage();
+    resetGame();
     gameState.phase = 'ready';
-    ui.setStatus('재시작 완료, START로 시작');////////////////
+    ui.setStatus('재시작 완료, START로 시작');
   }
 
   function setupEvents() {
@@ -192,9 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.pauseBtn.addEventListener('click', pauseGame);
     ui.restartBtn.addEventListener('click', restartGame);
 
-
-    const mainMenu = document.querySelector('#mainMenuBtn');//메인메뉴버튼
-    mainMenu.addEventListener('click', () => {//메인메뉴로 가도록
+    const mainMenu = document.querySelector('#mainMenuBtn');
+    mainMenu.addEventListener('click', () => {
       location.href = 'mainmenu.html';
     });
   }
@@ -203,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initObjects();
     setupEvents();
     buildStage();
-    ui.setStatus('준비: 시작 버튼을 눌러 주세요');/////////////////////
+    ui.setStatus('준비: 시작 버튼을 눌러 주세요');
     gameState.phase = 'ready';
     loop();
   }

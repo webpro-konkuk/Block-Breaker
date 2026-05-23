@@ -29,5 +29,11 @@ function createBall(canvasWidth, canvasHeight) {
     ctx.closePath();
   };
 
+  ball.grow = (amount = 2) => {
+    const maxRadius = 16;
+    const nextRadius = ball.radius + amount;
+    ball.radius = Math.min(nextRadius, maxRadius);
+  };
+
   return ball;
 }
