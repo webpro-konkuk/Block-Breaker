@@ -135,16 +135,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function respawnBrickRandom(brick) {
-    const aliveBricks = bricks.filter((item) => item.alive && item !== brick);
-    const baseBrick = aliveBricks[Math.floor(Math.random() * aliveBricks.length)] || brick;
-    const offsetX = Math.floor(Math.random() * 5) - 2;
-    const offsetY = Math.floor(Math.random() * 3) - 1;
+  function moveBallRandomly() {
+    const margin = ball.radius + 24;
+    const minY = 170;
+    const maxY = Math.max(minY, canvas.height - 180);
+    const speed = Math.hypot(ball.vx, ball.vy) || ball.speed;
+    const angle = (Math.random() * Math.PI) / 2 + Math.PI / 4;
+    const direction = Math.random() < 0.5 ? -1 : 1;
 
-    brick.x = Math.max(24, Math.min(canvas.width - brick.width - 24, baseBrick.x + offsetX * 24));
-    brick.y = Math.max(54, baseBrick.y + offsetY * 28);
-    brick.hp = brick.maxHp;
-    brick.alive = true;
+    ball.x = margin + Math.random() * (canvas.width - margin * 2);
+    ball.y = minY + Math.random() * (maxY - minY);
+    ball.vx = Math.cos(angle) * speed * direction;
+    ball.vy = -Math.abs(Math.sin(angle) * speed);
   }
 
   function clearTagBricks(currentBricks, targetTag) {
@@ -179,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
       pickNextBackgroundImage();
     }
     if (result.effect.kind === 'respawnRandom') {
-      respawnBrickRandom(result.hitBrick);
+      moveBallRandomly();
     }
     if (result.effect.kind === 'clearTag') {
       const { nextBricks, gainedScore } = clearTagBricks(bricks, result.effect.targetTag);
