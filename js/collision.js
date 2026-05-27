@@ -63,8 +63,24 @@ function resolveBrickCollision(ball, bricks) {
       ball.vy = -ball.vy;
     }
 
+    if (typeof brick.hp === 'number') {
+      brick.hp -= 1;
+      if (brick.hp > 0) {
+        return 0;
+      }
+    }
     brick.alive = false;
-    return brick.point;
+
+    if (!brick.effect) {
+      return brick.point;
+    }
+
+    return {
+      score: brick.point,
+      tag: brick.tag,
+      effect: brick.effect,
+      hitBrick: brick,
+    };
   }
 
   return 0;

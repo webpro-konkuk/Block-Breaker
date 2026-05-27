@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>블록깨기 - 환경설정</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body class="setting-body">
+    <div class="container">
+      <h1>환경설정</h1>
+
+      <p class="hint">게임 설정을 변경하세요</p>
+
+      <div>
+        <p>
+          공 색:
+          <input id="ballColorInput" type="color" value="#f59e0b" />
+        </p>
+
+        <p>
+          패들 색:
+          <input id="paddleColorInput" type="color" value="#22d3ee" />
+        </p>
+
+        <p>
+          배경음악:
+          <select id="bgmSelect">
+            <option value="bgm1">배경음악 1</option>
+            <option value="bgm2">배경음악 2</option>
+            <option value="bgm3">배경음악 3</option>
+          </select>
+        </p>
+        <p>
+          배경음악 볼륨:
+          <input id="bgmVolume" type="range" min="0" max="100" value="50"/>
+        </p>
+      </div>
+
+      <div class="btn-group">
+        <button id="saveSettingBtn" type="button">저장</button>
+        <button id="backMenuBtn" type="button">메인메뉴</button>
+      </div>
+
+      <p id="settingStatus" class="status"></p>
+    </div>
+
+    <script src="./js/setting.js"></script>
+    <script>
+      document.body.classList.add('game-bg-active');
+      document.body.style.setProperty('--game-background-image', "url('../setting.png')");
+    </script>
+  </body>
+</html>

@@ -47,7 +47,7 @@ function createUI() {
 document.addEventListener('DOMContentLoaded', () => {
   const introContainer = document.getElementById('introContainer');
   const introImage = document.getElementById('introImage');
-  // html에 id를 추가했으니 이제 정상적으로 요소를 잡을 수 있습니다.
+  const introText = document.getElementById('introText');
   const mainGameContainer = document.getElementById('mainGameContainer'); 
 
   let currentIntroIndex = 1;
@@ -70,6 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
     `"......"`,
     `"속는셈치고 한번 해볼까?"`
   ];
+
+  if (!introContainer || !introImage || !mainGameContainer) {
+    return;
+  }
 
   if (introText) {
     introText.textContent = introScripts[1];
