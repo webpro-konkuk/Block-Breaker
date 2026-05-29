@@ -6,16 +6,18 @@
     <title>블록깨기</title>
     <link rel="stylesheet" href="./css/style.css" />
   </head>
-  <body>
-    <div id="introContainer" class="intro-container">
+  <body class="game-bg-active">
+    <!-- <div id="introContainer" class="intro-container">
       <div class="intro-box">
         <img id="introImage" src="intro1.png" alt="인트로 스토리" />
         <p id="introText" class="intro-text">내 이름은 컴붕이.</p>
         <p class="intro-hint">화면을 클릭하면 다음으로 넘어갑니다</p>
       </div>
-    </div>
+    </div>  -->
+    <!-- intro.html과 intro.js를 만들어서 삭제필요
+    body에 class붙여서 배경이미지 보이도록 수정 -->
 
-    <div class="container" id="mainGameContainer" style="display: none;">
+    <div class="container" id="mainGameContainer">
       <canvas id="gameCanvas" width="720" height="520"></canvas>
 
       <div id="status" class="status">준비: 시작 버튼을 눌러 주세요</div>
