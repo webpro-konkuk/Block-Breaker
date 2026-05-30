@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let backgroundImages = [];
 
   function loadBackgroundImages() {
-    backgroundImages = ['./img/sky.jpg', './img/snow.jpg'];
+    backgroundImages = ['./img/img1.png', './img/img2.png','./img/img3.png'];
     backgroundImages.forEach((src) => {
       const image = new Image();
       image.src = src;
