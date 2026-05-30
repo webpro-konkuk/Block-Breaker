@@ -43,6 +43,23 @@ function resolvePaddleCollision(ball, paddle) {
   return true;
 }
 
+function pushBallOutOfBrick(ball, brick, overlapX, overlapY, dx, dy) {
+  const cx = brick.x + brick.width / 2;
+  const cy = brick.y + brick.height / 2;
+  const buffer = 0.5;
+
+  if (overlapX < overlapY) {
+    const side = Math.sign(dx || -ball.vx || 1);
+    ball.x = cx + side * (brick.width / 2 + ball.radius + buffer);
+    ball.vx = Math.abs(ball.vx) * side;
+    return;
+  }
+
+  const side = Math.sign(dy || -ball.vy || 1);
+  ball.y = cy + side * (brick.height / 2 + ball.radius + buffer);
+  ball.vy = Math.abs(ball.vy) * side;
+}
+
 function resolveBrickCollision(ball, bricks) {
   for (let i = 0; i < bricks.length; i += 1) {
     const brick = bricks[i];
@@ -57,11 +74,7 @@ function resolveBrickCollision(ball, bricks) {
     const overlapX = brick.width / 2 + ball.radius - Math.abs(dx);
     const overlapY = brick.height / 2 + ball.radius - Math.abs(dy);
 
-    if (overlapX < overlapY) {
-      ball.vx = -ball.vx;
-    } else {
-      ball.vy = -ball.vy;
-    }
+    pushBallOutOfBrick(ball, brick, overlapX, overlapY, dx, dy);
 
     if (brick.unbreakable) {
       return 0;
