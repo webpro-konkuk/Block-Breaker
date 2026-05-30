@@ -44,7 +44,7 @@ function createUI() {
   };
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+/*document.addEventListener('DOMContentLoaded', () => {
   const introContainer = document.getElementById('introContainer');
   const introImage = document.getElementById('introImage');
   const introText = document.getElementById('introText');
@@ -103,4 +103,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     document.body.classList.add('game-bg-active');
   }
-});
+});*/
+//intro.html과 intro.js를 만들어서 삭제필요

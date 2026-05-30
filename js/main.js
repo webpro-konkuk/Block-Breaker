@@ -26,6 +26,42 @@ document.addEventListener('DOMContentLoaded', () => {
   let bricks = [];
   let backgroundImages = [];
 
+//음악 관련 변수
+  const BGM_TYPES = ['bgm1', 'bgm2'];
+  let bgmAudio = null;
+  let currentBgmPath = '';
+  function getSavedBgmType() {
+    const bgmType = localStorage.getItem('bgmType') || 'bgm1';
+    return BGM_TYPES.includes(bgmType) ? bgmType : 'bgm1';
+  }
+  function getSavedBgmVolume() {
+    const volume = Number.parseInt(localStorage.getItem('bgmVolume') || '50', 10);
+    return Number.isNaN(volume) ? 0.5 : volume / 100;
+  }
+  function getBgmPath(){
+    const bgmType = getSavedBgmType();
+    return `./audio/${bgmType}-${gameState.level}.mp3`;
+  }
+
+  function playBgm() {
+    const bgmPath = getBgmPath();
+
+    if(!bgmAudio || currentBgmPath !== bgmPath){
+      if(bgmAudio){
+        bgmAudio.pause();
+      }
+
+      bgmAudio = new Audio(bgmPath);
+      bgmAudio.loop = true;
+      currentBgmPath = bgmPath;
+    }
+
+    bgmAudio.volume = getSavedBgmVolume();
+    bgmAudio.play();
+  }
+//음악 관련 함수
+
+
   function loadBackgroundImages() {
     backgroundImages = ['./img/img1.png', './img/img2.png','./img/img3.png'];
     backgroundImages.forEach((src) => {
@@ -244,6 +280,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (gameState.phase !== 'clear') return;
     gameState.level += 1;
     buildStage();
+    playBgm();
+    //다음레벨 진입시 음악 자동 변경
+
     gameState.phase = 'running';
     ui.setStatus('게임 진행 중');
   }
@@ -278,6 +317,9 @@ document.addEventListener('DOMContentLoaded', () => {
       resetGame();
     }
 
+    playBgm();
+    //게임 시작버튼 누르면 음악 자동 재생
+
     gameState.phase = 'running';
     ui.setStatus('게임 진행 중');
   }
@@ -285,11 +327,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function pauseGame() {
     if (gameState.phase !== 'running') {
       if (gameState.phase === 'paused') {
+        playBgm();/*paused상태에서 일시정지 버튼 다시 누르면 음악 재생*/
         gameState.phase = 'running';
         ui.setStatus('게임 진행 중');
       }
       return;
     }
+
+    if(bgmAudio){
+      bgmAudio.pause();
+    }/*음악 멈춤*/
 
     gameState.phase = 'paused';
     ui.setStatus('일시정지. 다시 누르면 재개');
