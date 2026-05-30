@@ -63,6 +63,10 @@ function resolveBrickCollision(ball, bricks) {
       ball.vy = -ball.vy;
     }
 
+    if (brick.unbreakable) {
+      return 0;
+    }
+
     if (typeof brick.hp === 'number') {
       brick.hp -= 1;
       if (brick.hp > 0) {
