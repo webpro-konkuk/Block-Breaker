@@ -5,7 +5,7 @@
     <title>블록깨기 - 결과</title>
     <link rel="stylesheet" href="./css/style.css" />
   </head>
-  <body>
+  <body class="result-body">
     <div class="container">
       <h1>게임 결과</h1>
 
@@ -33,5 +33,9 @@
     </div>
 
     <script src="./js/result.js"></script>
+    <script>
+      document.body.classList.add('game-bg-active');
+      document.body.style.setProperty('--game-background-image', "url('../result.png')");
+    </script>
   </body>
 </html>

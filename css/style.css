@@ -201,6 +201,7 @@ body.game-bg-active::before {
   background-repeat: no-repeat;
   background-attachment: fixed;
   animation: fadeInOnlyBg 1.5s ease-in-out forwards;
+  transition: background-image 0.5s ease-in-out;
 }
 
 @keyframes blink {
@@ -245,3 +246,48 @@ body.game-bg-active::before {
     flex-wrap: wrap;
   }
 }
+
+body:not(.game-body) .container {
+  background: rgba(11, 18, 32, 0.15) !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+body:not(.game-body) .container::after {
+  display: none !important;
+}
+
+
+body:not(.game-body) .container h1,
+body:not(.game-body) .container p,
+body:not(.mainmenu-body):not(.game-body) .container div,
+body:not(.game-body) .container strong,
+body:not(.game-body) .container span,
+body:not(.game-body) .container label,
+body:not(.game-body) .container button,
+body:not(.game-body) .container input {
+  color: #ffffff !important;
+  text-shadow:
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000,
+    0 2px 8px rgba(0, 0, 0, 0.9) !important;
+}
+
+body:not(.game-body) .container .hint {
+  color: #f1f5f9 !important;
+}
+
+body:not(.game-body) .container input,
+body:not(.game-body) .container select {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+body.mainmenu-body .container button#startGameBtn { color: #022c22 !important; text-shadow: none !important; }
+body.mainmenu-body .container button#difficultyBtn { color: #451a03 !important; text-shadow: none !important; }
+body.mainmenu-body .container button#settingBtn { color: #082f49 !important; text-shadow: none !important; }

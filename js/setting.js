@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const saveSettingBtn = document.querySelector('#saveSettingBtn');
   const backMenuBtn = document.querySelector('#backMenuBtn');
+  const bgmTypes = ['bgm1', 'bgm2'];
 
   const savedBallColor = localStorage.getItem('ballColor') || '#f59e0b';
   const savedPaddleColor = localStorage.getItem('paddleColor') || '#22d3ee';
@@ -14,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   ballColorInput.value = savedBallColor;
   paddleColorInput.value = savedPaddleColor;
-  bgmSelect.value = savedBgmType;
+  bgmSelect.value = bgmTypes.includes(savedBgmType) ? savedBgmType : 'bgm1';
   bgmVolume.value = savedBgmVolume;
 
   saveSettingBtn.addEventListener('click', () => {

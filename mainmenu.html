@@ -5,7 +5,7 @@
     <title>블록깨기 - 메인메뉴</title>
     <link rel="stylesheet" href="./css/style.css" />
   </head>
-  <bodyㄴ>
+  <body class="mainmenu-body game-bg-active">
     <div class="container">
       <h1>블록깨기</h1>
 
@@ -24,7 +24,6 @@
           <button id="settingBtn" type="button">환경설정</button>
         </p>
       </div>
-
 
       <div>
         <p>
@@ -62,10 +61,11 @@
           ></span>
         </p>
       </div>
-
-
-
     </div>
+
     <script src="./js/mainmenu.js"></script>
+    <script>
+      document.body.style.setProperty('--game-background-image', "url('../mainmenu.png')");
+    </script>
   </body>
 </html>

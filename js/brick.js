@@ -9,6 +9,7 @@ const BRICK_PROFILE = {
   ul: { hp: 1, point: 110, color: '#34d399', effect: { kind: 'clearTag', targetTag: 'li' } },
   strong: { hp: 1, point: 140, color: '#f43f5e', effect: { kind: 'ballGrow', amount: 2 } },
   li: { hp: 1, point: 15, color: '#facc15', effect: null },
+  bedrock: { hp: 1, point: 0, color: '#050505', effect: null, unbreakable: true },
 };
 
 const BRICK_LAYOUT = [
@@ -52,6 +53,7 @@ function createBrickGrid(level, canvasWidth) {
         point: profile.point,
         color: profile.color,
         effect: profile.effect,
+        unbreakable: profile.unbreakable || false,
       });
     }
   }
@@ -77,7 +79,7 @@ function drawBricks(ctx, bricks) {
     ctx.textBaseline = 'middle';
     ctx.fillText(brick.label, brick.x + brick.width / 2, brick.y + brick.height / 2);
 
-    if (brick.maxHp > 1) {
+    if (brick.maxHp > 1 && !brick.unbreakable) {
       ctx.font = '10px Arial';
       ctx.fillText(brick.hp + '/' + brick.maxHp, brick.x + brick.width - 16, brick.y + 10);
     }
