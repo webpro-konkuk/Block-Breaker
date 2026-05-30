@@ -12,20 +12,35 @@ const BRICK_PROFILE = {
   bedrock: { hp: 1, point: 0, color: '#050505', effect: null, unbreakable: true },
 };
 
-const BRICK_LAYOUT = [
-  ['div', 'span', 'img', 'span', 'div', 'span', 'div', 'li'],
-  ['div', 'hr', 'div', 'strong', 'div', 'span', 'div', 'div'],
-  ['div', 'div', 'ul', 'li', 'li', 'div', 'span', 'div'],
-  ['div', 'span', 'a', 'div', 'h1', 'div', 'br', 'span'],
-];
+const BRICK_LAYOUTS = {
+  1: [
+    ['span', 'div', 'span', 'img', 'span', 'div', 'span', 'li'],
+    ['div', 'hr', 'div', 'strong', 'div', 'br', 'div', 'span'],
+    ['span', 'div', 'ul', 'li', 'li', 'a', 'div', 'span'],
+  ],
+  2: [
+    ['div', 'span', 'bedrock', 'img', 'img', 'bedrock', 'span', 'div'],
+    ['span', 'hr', 'div', 'strong', 'div', 'br', 'a', 'span'],
+    ['div', 'bedrock', 'ul', 'li', 'li', 'ul', 'bedrock', 'div'],
+    ['span', 'div', 'div', 'hr', 'br', 'div', 'div', 'span'],
+  ],
+  3: [
+    ['bedrock', 'div', 'span', 'img', 'img', 'span', 'div', 'bedrock'],
+    ['div', 'bedrock', 'hr', 'strong', 'strong', 'br', 'bedrock', 'div'],
+    ['span', 'div', 'bedrock', 'ul', 'a', 'bedrock', 'div', 'span'],
+    ['div', 'hr', 'li', 'li', 'li', 'li', 'br', 'div'],
+    ['bedrock', 'div', 'span', 'bedrock', 'bedrock', 'span', 'div', 'bedrock'],
+  ],
+};
 
-function getTagByPosition(row, col) {
-  return BRICK_LAYOUT[row] && BRICK_LAYOUT[row][col] ? BRICK_LAYOUT[row][col] : 'div';
+function getLayoutByLevel(level) {
+  return BRICK_LAYOUTS[level] || BRICK_LAYOUTS[1];
 }
 
 function createBrickGrid(level, canvasWidth) {
-  const cols = 8;
-  const rows = Math.min(2 + level, 7);
+  const layout = getLayoutByLevel(level);
+  const rows = layout.length;
+  const cols = layout[0].length;
   const gap = 8;
   const startX = 24;
   const startY = 54;
@@ -35,7 +50,7 @@ function createBrickGrid(level, canvasWidth) {
 
   for (let row = 0; row < rows; row += 1) {
     for (let col = 0; col < cols; col += 1) {
-      const tag = getTagByPosition(row, col);
+      const tag = layout[row][col] || 'div';
       const profile = BRICK_PROFILE[tag];
 
       bricks.push({
