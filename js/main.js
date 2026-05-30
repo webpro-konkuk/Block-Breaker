@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function damageBrickByEffect(brick, amount) {
-    if (!brick.alive || typeof brick.hp !== 'number') {
+    if (!brick.alive || brick.unbreakable || typeof brick.hp !== 'number') {
       return 0;
     }
 
@@ -228,7 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function clearDeadBricksAndCheckLevel() {
     bricks = bricks.filter((brick) => brick.alive);
-    if (bricks.length !== 0) {
+    const hasBreakableBrick = bricks.some((brick) => !brick.unbreakable);
+    if (hasBreakableBrick) {
       return;
     }
 
