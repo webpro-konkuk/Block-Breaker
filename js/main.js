@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     resolvePaddleCollision(ball, paddle);
-    const gained = resolveBrickCollision(ball, bricks);
+    const gained = resolveBrickCollision(ball, bricks, canvas.width, canvas.height);
     if (typeof gained === 'number') {
       if (gained > 0) {
         gameState.score += gained;
