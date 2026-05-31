@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (canEnterLeaderBoard(score, leaderBoard)) {
     leaderBoardMessage.textContent = '리더보드 상위 15인 안에 드셨어요!';
 
-    const playerName = prompt('리더보드 상위 15인 안에 드셨어요! 이름을 입력하세요.')?.trim();
+    const playerName = prompt('개인 기록 상위 15위 안에 들었습니다! 이름을 입력하세요.')?.trim();
 
     if (playerName) {
       const newRecord = {
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   } else {
-    leaderBoardMessage.textContent = '아쉽게 리더보드 상위 15인에 들어오지 못하셨어요..';
+    leaderBoardMessage.textContent = '아쉽게도 개인 리더보드 상위 15위 안에 들지 못했습니다.';
   }
 
   renderLeaderBoard(leaderBoard);
