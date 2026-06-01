@@ -24,6 +24,17 @@ function createPaddle(canvasWidth, canvasHeight) {
     }
   };
 
+  paddle.moveTo = (centerX) => {
+    paddle.x = centerX - paddle.width / 2;
+
+    if (paddle.x < 0) {
+      paddle.x = 0;
+    }
+    if (paddle.x + paddle.width > canvasWidth) {
+      paddle.x = canvasWidth - paddle.width;
+    }
+  };
+
   paddle.reset = () => {
     paddle.x = canvasWidth / 2 - paddle.width / 2;
   };

@@ -5,7 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getSpeedByLevel(level) {
-    return 4.5 + (level - 1) * 0.2;
+    const speeds = {
+      1: 4.5,
+      2: 5.5,
+      3: 6.5,
+    };
+    return speeds[level] || speeds[1];
   }
 
   const gameState = {
@@ -353,6 +358,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.startBtn.addEventListener('click', startGame);
     ui.pauseBtn.addEventListener('click', pauseGame);
     ui.restartBtn.addEventListener('click', restartGame);
+
+    canvas.addEventListener('mousemove', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const mouseX = (event.clientX - rect.left) * scaleX;
+      paddle.moveTo(mouseX);
+    });
 
     const mainMenu = document.querySelector('#mainMenuBtn');
     mainMenu.addEventListener('click', () => {
