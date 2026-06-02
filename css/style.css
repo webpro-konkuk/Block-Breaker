@@ -282,10 +282,17 @@ body:not(.game-body) .container .hint {
 
 body:not(.game-body) .container input,
 body:not(.game-body) .container select {
+  color: #ffffff;/*배경음악 선택창 흰글씨*/
   background-color: rgba(15, 23, 42, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: 6px;
   padding: 2px 6px;
+}
+
+/*음량 조절 바 수정*/
+body:not(.game-body) .container  input[type="range"]{
+  padding: 0;
+  border: 0 !important;
 }
 
 body.mainmenu-body .container button#startGameBtn { color: #022c22 !important; text-shadow: none !important; }
