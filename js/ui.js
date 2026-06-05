@@ -105,3 +105,27 @@ function createUI() {
   }
 });*/
 //intro.html과 intro.js를 만들어서 삭제필요
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const memoBtn = document.getElementById('memoBtn');
+  const memoModal = document.getElementById('memoModal');
+  const memoCloseBtn = document.querySelector('.memo-close-btn');
+
+  if (memoBtn && memoModal && memoCloseBtn) {
+    
+    memoBtn.addEventListener('click', () => {
+      memoModal.style.display = 'flex';
+    });
+
+    memoCloseBtn.addEventListener('click', () => {
+      memoModal.style.display = 'none';
+    });
+
+    memoModal.addEventListener('click', (e) => {
+      if (e.target === memoModal) {
+        memoModal.style.display = 'none';
+      }
+    });
+  }
+});

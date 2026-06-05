@@ -26,7 +26,28 @@
         <button id="startBtn" class="btn-start">시작</button>
         <button id="pauseBtn" class="btn-pause">일시정지</button>
         <button id="restartBtn" class="btn-restart">재시작</button>
+        <button id="memoBtn" class="btn-memo">메모장</button>
         <button id="mainMenuBtn" class="btn-menu">메인메뉴</button>
+      </div>
+
+      <div id="memoModal" class="memo-modal" style="display: none;">
+        <div class="memo-modal-content">
+          <span class="memo-close-btn">&times;</span>
+          <h2>🧱 내가 보려고 만든 벽돌 메모장</h2>
+          
+          <div class="memo-grid">
+            <p><strong>&lt;div&gt;</strong> 🔵 체력 2 | 일반 벽돌</p>
+            <p><strong>&lt;span&gt;</strong> 🌐 체력 1 | 점수가 낮은 기본 벽돌</p>
+            <p><strong>&lt;hr&gt;</strong> 🟠 체력 1 | 가로 라인 데미지 (같은 줄 체력 1 감소)</p>
+            <p><strong>&lt;br&gt;</strong> 🟢 체력 1 | 줄 바꿈 (전체 블록이 한 줄 아래로 하강)</p>
+            <p><strong>&lt;a&gt;</strong> 🟣 체력 1 | 순간 이동 (맞추면 다른 곳으로 랜덤 소환)</p>
+            <p><strong>&lt;img&gt;</strong> 🖼️ 체력 1 | 인게임 배경 이미지 실시간 변경</p>
+            <p><strong>&lt;ul&gt;</strong> 💥 체력 1 | 리스트 폭파 (부수면 모든 &lt;li&gt; 벽돌이 일괄 삭제)</p>
+            <p><strong>&lt;strong&gt;</strong> 🔴 체력 1 | 공 크기 거대화 (Grow 효과 발동)</p>
+            <p><strong>&lt;li&gt;</strong> 🟡 체력 1 | 일반 잔바리 벽돌</p>
+            <p><strong>&lt;bedrock&gt;</strong> 🖤 체력 X | 절대 부숴지지 않는 벽돌</p>
+          </div>
+        </div>
       </div>
 
       <div id="hud">
